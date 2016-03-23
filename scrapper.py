@@ -68,6 +68,14 @@ def has_two_tds(element):
             len(element.find_all('<td>', recursive=False)) == 2)
 
 
+def clean_data(cell):
+    """Return the clean string of a html cell."""
+    try:
+        return cell.string.strip(' \n:-')
+    except AttributeError:
+        return u""
+
+
 if __name__ == '__main__':
     kwargs = {
         'Inspection_Start': '1/1/2015',
@@ -84,4 +92,6 @@ if __name__ == '__main__':
         metadata_rows = listing.find('table').find_all(
                 has_two_tds(listing), recursive=False
             )
-        print(len(metadata_rows))
+        for row in metadata_rows:
+            for td in row.find_all('td', recursive=False):
+                print(repr(clean_data(td)))
