@@ -31,7 +31,7 @@ def get_inspection_page(**kwargs):
     Saves the webpage to 'search_results.txt'
     """
     url = INSPECTION_DOMAIN + INSPECTION_PATH
-    params = INSPECTION_PARAMS
+    params = INSPECTION_PARAMS.copy()
     for key, val in kwargs.items():
         if key in INSPECTION_PARAMS:
             params[key] = val
