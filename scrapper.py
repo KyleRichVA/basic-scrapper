@@ -1,6 +1,7 @@
 import requests
 import io
 import sys
+import re
 from bs4 import BeautifulSoup
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
 INSPECTION_PATH = '/health/ehs/foodsafety/inspections/Results.aspx'
@@ -55,6 +56,18 @@ def parse_source(htmlpage, encoding="utf8"):
     """Return html as BeautifulSoup object."""
     return BeautifulSoup(htmlpage, "html.parser", from_encoding=encoding)
 
+
+def extract_data_listings(soup):
+    """Return all the resutrant listings from results."""
+    return soup.find_all('div', id=re.compile(r'PR[\d]+~'))
+
+
+def has_two_tds(element):
+    """Return true if element is a <tr> and has two <td> inside it."""
+    return (element.name == 'tr' and
+            len(element.find_all('<td>', recursive=False)) == 2)
+
+
 if __name__ == '__main__':
     kwargs = {
         'Inspection_Start': '1/1/2015',
@@ -65,4 +78,10 @@ if __name__ == '__main__':
         html, encoding = load_inspection_page()
     else:
         html, encoding = get_inspection_page(**kwargs)
-    print(parse_source(html, encoding).prettify(encoding=encoding))
+    soup = parse_source(html, encoding)
+    listings = extract_data_listings(soup)
+    for listing in listings:
+        metadata_rows = listing.find('table').find_all(
+                has_two_tds(listing), recursive=False
+            )
+        print(len(metadata_rows))
