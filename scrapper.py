@@ -76,6 +76,22 @@ def clean_data(cell):
         return u""
 
 
+def extract_restaurant_metadata(elem):
+    metadata_rows = elem.find('table').find_all(
+        has_two_tds(elem), recursive=False)
+    rdata = {}
+    current_label = ''
+    for row in metadata_rows:
+        try:
+            key_cell, val_cell = row.find_all('td', recursive=False)
+        except ValueError:
+            continue
+        new_label = clean_data(key_cell)
+        current_label = new_label if new_label else current_label
+        rdata.setdefault(current_label, []).append(clean_data(val_cell))
+    return rdata
+
+
 if __name__ == '__main__':
     kwargs = {
         'Inspection_Start': '1/1/2015',
@@ -89,9 +105,6 @@ if __name__ == '__main__':
     soup = parse_source(html, encoding)
     listings = extract_data_listings(soup)
     for listing in listings:
-        metadata_rows = listing.find('table').find_all(
-                has_two_tds(listing), recursive=False
-            )
-        for row in metadata_rows:
-            for td in row.find_all('td', recursive=False):
-                print(repr(clean_data(td)))
+        metadata = extract_restaurant_metadata(listing)
+        print(metadata)
+        print
