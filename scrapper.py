@@ -174,8 +174,9 @@ def get_geojson(search):
 if __name__ == '__main__':
     import pprint
     test = len(sys.argv) > 1 and sys.argv[1] == 'test'
+    num_results = int(sys.argv[2]) if len(sys.argv) > 2 else 10
     total_result = {'type': 'FeatureCollection', 'features': []}
-    for result in generate_results(test):
+    for result in generate_results(test, num_results):
         geo_result = get_geojson(result)
         pprint.pprint(geo_result)
         total_result['features'].append(geo_result)
